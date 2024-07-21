@@ -4,6 +4,15 @@
 
 问题描述: 构建产物中, errorHandler无法拦截全局异常
 问题原因: Rollup会在构建时将vue提供的errorHandler视为dead code进行移除, 导致`Vue.config.errorHandler`配置项失效
+复现方法: 
+- 克隆该项目
+- `pnpm install`
+- `pnpm build && pnpm preview`
+- F12打开开发者工具, 点击界面中的trigger error按钮, 可以注意到该报错未被errorHandler捕获
+  - ![errorHandler失效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkefi7xpj30il0egju1.jpg)
+- 重新执行`pnpm dev`
+- F12打开开发者工具, 点击界面中的trigger error按钮, 可发现在dev模式下, 该报错可以正常被errorHandler捕获
+  - ![errorHandler生效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkfsvpj1j30iw0f6tbn.jpg)
 
 #  复现环境
 
@@ -16,8 +25,6 @@
 #  复现方法
 
 使用以下任意方式引入vue, 都会导致构建产物中`Vue.config.errorHandler`失效. dev模式由于未开启DCE, 故无影响
-
-
 
 ```js
 // 正常
@@ -96,3 +103,56 @@ function globalHandleError(err, vm, info) {
 }
 ```
 
+
+#   彩蛋: 启用 SourceMap 会导致排查难度增加 
+
+由于SourceMap的工作是将构建产物映射回源文件, 会掩盖源文件中, if语句块被删除的实时, 因此在浏览器调试时会看到`if(true)`然后执行了`else`语句的现象, 增大故障排查难度
+
+##  示例
+
+编辑`vue.min.js`, 为errorHandler调用添加调试日志
+```js
+function bn(t, e, n) {
+  console.log("B.errorHandler值为 => ", B.errorHandler.toString());
+  const rawBoolean = true;
+  const errorHandlerToBool = !!B.errorHandler;
+
+  console.log("rawBoolean is ", JSON.stringify(rawBoolean));
+  if (rawBoolean) {
+    console.log("rawBoolean 为true");
+  } else {
+    console.log("rawBoolean 为false");
+  }
+  console.log(
+    "errorHandlerToBool is ",
+    JSON.stringify(errorHandlerToBool)
+  );
+  if (errorHandlerToBool) {
+    console.log("errorHandlerToBool 为true");
+  } else {
+    console.log("errorHandlerToBool 为false");
+  }
+
+  if (B.errorHandler) {
+    console.log("B.errorHandler存在, 调用成功");
+    try {
+      return B.errorHandler.call(null, t, e, n);
+    } catch (e) {
+      e !== t && $n(e);
+    }
+  } else {
+    console.log("B.errorHandler不存在, 未进行调用");
+  }
+  $n(t);
+}
+```
+
+然后在浏览器中运行, 在有SourceMap的情况下, 会很难理解代码运行逻辑
+
+比如if(true)但走到了else路径
+- ![if(true)但走到了else路径](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkush3mdj30tn0pegwj.jpg)
+单看日志也看不出问题
+- ![log结果和代码逻辑不一致](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvl22170cj30lb0r1gwb.jpg)
+
+但如果移除SourceMap, 直接看源码, 即可发现是构建结果不正确, 实际构建结果中, 直接移除了if判断部分
+- ![实际构建结果中, 直接移除了if判断部分](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvl5ot108j30oj0ox124.jpg)
