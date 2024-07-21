@@ -13,6 +13,7 @@ import Vue from "vue";
 
 Vue.config.errorHandler = (err, instance, info) => {
   console.log("✅errorHandler catch success", err);
+  alert("errorHandler enabled!");
 };
 
 const app = new Vue({

@@ -11,10 +11,10 @@
 - 克隆该项目
 - `pnpm install`
 - [dev模式正常]执行`pnpm dev`
-- F12打开开发者工具, 点击界面中的trigger error按钮, 可发现在dev模式下, 该报错可以正常被errorHandler捕获
+- F12打开开发者工具, 点击界面中的trigger error按钮, 可发现在dev模式下, 该报错可以正常被errorHandler捕获(弹出alert)
   - ![errorHandler生效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkfsvpj1j30iw0f6tbn.jpg)
 - [prod模式异常]执行`pnpm build && pnpm preview`
-- F12打开开发者工具, 点击界面中的trigger error按钮, 可以注意到该报错未被errorHandler捕获
+- F12打开开发者工具, 点击界面中的trigger error按钮, 可以注意到该报错未被errorHandler捕获(未弹出alert)
   - ![errorHandler失效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkefi7xpj30il0egju1.jpg)
 
 #  复现环境
