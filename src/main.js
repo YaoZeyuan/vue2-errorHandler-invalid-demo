@@ -1,5 +1,6 @@
+import Vue from "vue/dist/vue.common.prod.js";
 // 通过以下方式引用的vue, dev模式下errorHandler行为正常, 但执行构建后, errorHandler会失效
-import Vue from "vue/dist/vue.min.js";
+// import Vue from "vue/dist/vue.min.js";
 // import Vue from "vue/dist/vue.common.prod.js";
 // import Vue from "vue/dist/vue.common.js";
 // import Vue from "vue/dist/vue.esm.browser.min.js";
