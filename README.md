@@ -1,18 +1,19 @@
-# Vue 2 + Vite
+# 基于vite+vue2.7, 由于引用方式错误导致-errorHandler失效
 
 #  概览
 
-问题描述: 构建产物中, errorHandler无法拦截全局异常
+问题描述: 由于直接引入vue压缩后产物, 导致构建结果中, errorHandler无法拦截全局异常
+影响范围: vue@2.7所有版本 
 问题原因: Rollup会在构建时将vue提供的errorHandler视为dead code进行移除, 导致`Vue.config.errorHandler`配置项失效
 复现方法: 
 - 克隆该项目
 - `pnpm install`
-- `pnpm build && pnpm preview`
-- F12打开开发者工具, 点击界面中的trigger error按钮, 可以注意到该报错未被errorHandler捕获
-  - ![errorHandler失效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkefi7xpj30il0egju1.jpg)
-- 重新执行`pnpm dev`
+- [dev模式正常]执行`pnpm dev`
 - F12打开开发者工具, 点击界面中的trigger error按钮, 可发现在dev模式下, 该报错可以正常被errorHandler捕获
   - ![errorHandler生效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkfsvpj1j30iw0f6tbn.jpg)
+- [prod模式异常]执行`pnpm build && pnpm preview`
+- F12打开开发者工具, 点击界面中的trigger error按钮, 可以注意到该报错未被errorHandler捕获
+  - ![errorHandler失效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkefi7xpj30il0egju1.jpg)
 
 #  复现环境
 
@@ -69,7 +70,7 @@ Vue.config.errorHandler = (err, instance, info) => {
 
 # 原因
 
-由于config.errorHandler是运行时赋值, 所以初始值为null, 但代码压缩后信息丢失, 导致Rollup认为`globalHandleError`函数中的 config.errorHandler 恒为null, if语句块被整体删除, 引发问题
+由于config.errorHandler是运行时赋值, 所以初始值为null, 但代码压缩后信息丢失, 导致Rollup认为`globalHandleError`函数中的 config.errorHandler 恒为null, 构建时if语句块被整体移除, 引发问题
 
 ```ts
 // vue源码
