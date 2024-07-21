@@ -1,5 +1,7 @@
 # 基于vite+vue2.7, 由于引用方式错误导致-errorHandler失效
 
+> [在线查看](https://stackblitz.com/edit/github-wszpet-qbenux?file=README.md)
+
 #  概览
 
 问题描述: 由于直接引入vue压缩后产物, 导致构建结果中, errorHandler无法拦截全局异常
