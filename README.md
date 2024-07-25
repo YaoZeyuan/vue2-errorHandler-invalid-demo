@@ -4,9 +4,15 @@
 
 #  概览
 
-问题描述: 由于直接引入vue压缩后产物, 导致构建结果中, errorHandler无法拦截全局异常
-影响范围: vue@2.7所有版本 
-问题原因: Rollup会在构建时将vue提供的errorHandler视为dead code进行移除, 导致`Vue.config.errorHandler`配置项失效
+
+| 配置项             | 详情                                                  |
+| :----------------- | :---------------------------------------------------- |
+| 问题描述 | 由于直接引入vue压缩后产物, 导致构建结果中, errorHandler无法拦截全局异常        |
+| 影响范围            | vue@2.7所有版本, 直接引入压缩后的vue代码(\*.prod.js/\*.min.js)                                            |
+| 问题原因           | Rollup会在构建时将vue提供的errorHandler视为dead code进行移除, 导致`Vue.config.errorHandler`配置项失效 |
+| 构建工具           | vite@5.3.4(rollup@4.18.1 & @vitejs/plugin-vue2@2.3.1) |
+
+
 复现方法: 
 - 克隆该项目
 - `pnpm install`
@@ -17,15 +23,7 @@
 - F12打开开发者工具, 点击界面中的trigger error按钮, 可以注意到该报错未被errorHandler捕获(未弹出alert)
   - ![errorHandler失效](https://mirror-4-web.bookflaneur.cn/http://tva1.sinaimg.cn/large/007Yq4pTly1hrvkefi7xpj30il0egju1.jpg)
 
-#  复现环境
-
-| 配置项             | 详情                                                  |
-| :----------------- | :---------------------------------------------------- |
-| 出现异常的引用方式 | 直接引入压缩后的vue代码(\*.prod.js/\*.min.js)         |
-| vue版本            | vue@2.7.16                                            |
-| 构建工具           | vite@5.3.4(rollup@4.18.1 & @vitejs/plugin-vue2@2.3.1) |
-
-#  复现方法
+#  详述
 
 使用以下任意方式引入vue, 都会导致构建产物中`Vue.config.errorHandler`失效. dev模式由于未开启DCE, 故无影响
 
